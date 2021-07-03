@@ -3,37 +3,59 @@ import java.awt.Font;
 
 public class SudokuSolve {
 
-	private static int[][] board = new int[9][9];
-	private static boolean[][] empty = new boolean[9][9];
+	private static final int X = 4;
+	private static final int Y = 4;
+	private static final int D = X * Y;
+	private static int[][] board = new int[D][D];
+	private static boolean[][] empty = new boolean[D][D];
+	private static String LINE;
+	// do vis stuff later
 	private static final int SIZE = 180;
 	private static int[][][] boardPos = new int[9][9][2];
 	private static final int DISPLAYDELAY = 0;
 	private static final int GREENWAIT = 0;
 
 	public static void main(String[] args) {
+		
 		final boolean textMode = true;
-		String filename = "sudoku3.txt";
+		String filename = "sudoku2.txt";
+		populateLINE();
 		populateBoard(filename);
+		boardPrintNice();
 		Stopwatch sw = new Stopwatch();
-		if (textMode) {
-			boardPrintNice();
-			StdOut.println();
-			solve();
-			boardPrintNice();
-		} else {
-			StdDraw.enableDoubleBuffering();
-			StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
-			drawGrid();
-			populateBoardPos();
-			visBoard();
-			boardPrintNice();
-			StdOut.println("\n\n");
-			solveVis();
-			boardPrintNice();
-			visBoard();
+		for (int i = 0; i < 10000; i++) {
+			validBlocks();
 		}
-		StdOut.println("Solved");
+		// StdOut.println("validRowsCols(): " + validRowsCols());
+		// StdOut.println("validBlock(0, 0): " + validBlock(0, 0));
+		// solve();
+		// boardPrintNice();
+		// if (textMode) {
+		// boardPrintNice();
+		// StdOut.println();
+		// solve();
+		// boardPrintNice();
+		// } else {
+		// StdDraw.enableDoubleBuffering();
+		// StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
+		// drawGrid();
+		// populateBoardPos();
+		// visBoard();
+		// boardPrintNice();
+		// StdOut.println("\n\n");
+		// solveVis();
+		// boardPrintNice();
+		// visBoard();
+		// }
+		// StdOut.println("Solved");
 		StdOut.println(sw.elapsedTime());
+	}
+
+	public static void populateLINE() {
+		LINE = "";
+		for (int i = 0; i < (D + Y - 1); i++) {
+			LINE += "---";
+		}
 	}
 
 	public static void drawGrid() {
@@ -68,6 +90,7 @@ public class SudokuSolve {
 		StdDraw.pause(GREENWAIT);
 	}
 
+	// change to 4x4
 	public static void populateBoardPos() {
 		int s = SIZE / 9;
 		for (int i = 0; i < 9; i++) {
@@ -97,14 +120,13 @@ public class SudokuSolve {
 		StdDraw.pause(DISPLAYDELAY);
 	}
 
+	// changed to 4x4
 	public static boolean complete() {
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				if (board[i][j] == 0) {
+		for (int i = 0; i < D; i++)
+			for (int j = 0; j < D; j++)
+				if (board[i][j] == 0)
 					return false;
-				}
-			}
-		}
+
 		return validBoard();
 	}
 
@@ -138,29 +160,30 @@ public class SudokuSolve {
 		}
 	}
 
+	// changed to 4x4
 	public static void solve() {
-		int nRow = 9;
-		int nCol = 9;
-		for (int i = 0; i < 9 && nRow == 9; i++) {
-			for (int j = 0; j < 9 && nRow == 9; j++) {
+		int nRow = D;
+		int nCol = D;
+		for (int i = 0; i < D && nRow == D; i++)
+			for (int j = 0; j < D && nRow == D; j++)
 				if (board[i][j] == 0) {
 					nRow = i;
 					nCol = j;
+					// StdOut.println((nRow * X + nCol) * 100 / (D * D));
 					break;
 				}
-			}
-		}
-		if (nCol == 9) {
+
+		if (nCol == D)
 			return;
-		}
-		for (int i = 1; i < 10; i++) {
+
+		for (int i = 1; i <= D; i++) {
 			board[nRow][nCol] = i;
-			if (validBoard()) {
+			if (validBoard())
 				solve();
-			}
-			if (complete()) {
+
+			if (complete())
 				return;
-			}
+
 			board[nRow][nCol] = 0;
 		}
 	}
@@ -169,88 +192,92 @@ public class SudokuSolve {
 		return validRowsCols() && validBlocks();
 	}
 
+	// changed to 4x4
 	public static boolean validBlocks() {
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				if (!validBlock(i * 3, j * 3)) {
+		for (int i = 0; i < Y; i++)
+			for (int j = 0; j < X; j++)
+				if (!validBlock(i * Y, j * X))
 					return false;
-				}
-			}
-		}
+
 		return true;
 	}
 
+	// TODO improve
 	public static boolean validBlock(int sRow, int sCol) {
-		boolean ls[] = new boolean[9];
-		for (int i = sRow; i < sRow + 3; i++) {
-			for (int j = sCol; j < sCol + 3; j++) {
+		boolean ls[] = new boolean[D + 1];
+		for (int i = sRow; i < sRow + Y; i++)
+			for (int j = sCol; j < sCol + X; j++) {
 				int num = board[i][j];
-				if (num != 0) {
-					if (ls[num - 1]) {
+					if (ls[num])
 						return false;
-					}
-					ls[num - 1] = true;
-				}
+
+					ls[num] = board[i][j] != 0;
 			}
-		}
+
 		return true;
 	}
 
+	// changed to 4x4
 	public static boolean validRowsCols() {
-		for (int i = 0; i < 9; i++) {
-			boolean[] numsRow = new boolean[10];
-			boolean[] numsCol = new boolean[10];
-			for (int j = 0; j < 9; j++) {
+		for (int i = 0; i < D; i++) {
+			boolean[] numsRow = new boolean[D + 1];
+			boolean[] numsCol = new boolean[D + 1];
+			for (int j = 0; j < D; j++) {
 				int numR = board[i][j];
 				if (numsRow[numR])
 					return false;
 
 				numsRow[numR] = numR != 0;
+
 				int numC = board[j][i];
 				if (numsCol[numC])
 					return false;
+
 				numsCol[numC] = numC != 0;
 			}
 		}
 		return true;
 	}
 
+	// changed to 4x4
 	public static void populateBoard(String filename) {
 		In in = new In(filename);
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
+		for (int i = 0; i < D; i++) {
+			for (int j = 0; j < D; j++) {
 				board[i][j] = in.readInt();
 				empty[i][j] = board[i][j] == 0;
 			}
 		}
 	}
 
+	// changed to 4x4
 	public static void boardPrint() {
 		String str = "";
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				str += board[i][j] + " ";
+		for (int i = 0; i < D; i++) {
+			for (int j = 0; j < D; j++) {
+				str += String.format("%3d", board[i][j]);
 			}
 			str += "\n";
 		}
-		StdOut.print(str);
+		StdOut.println(str);
 	}
 
+	// changed to 4x4
 	public static void boardPrintNice() {
 		String str = "";
-		for (int i = 0; i < 9; i++) {
-			if (i % 3 == 0) {
-				str += "-------------------------\n";
+		for (int i = 0; i < D; i++) {
+			if (i % X == 0) {
+				str += LINE + "\n";
 			}
-			for (int j = 0; j < 9; j++) {
-				if (j % 3 == 0) {
+			for (int j = 0; j < D; j++) {
+				if (j % Y == 0) {
 					str += "| ";
 				}
-				str += board[i][j] + " ";
+				str += String.format("%3d", board[i][j]);
 			}
 			str += "|\n";
 		}
-		str += "-------------------------\n";
+		str += LINE + "\n";
 		StdOut.print(str);
 	}
 
