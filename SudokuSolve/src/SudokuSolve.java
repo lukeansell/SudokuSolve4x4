@@ -16,7 +16,7 @@ public class SudokuSolve {
 	private static final int GREENWAIT = 0;
 
 	public static void main(String[] args) {
-		
+
 		final boolean textMode = true;
 		String filename = "sudoku2.txt";
 		populateLINE();
@@ -161,6 +161,7 @@ public class SudokuSolve {
 	}
 
 	// changed to 4x4
+	// TODO improve
 	public static void solve() {
 		int nRow = D;
 		int nCol = D;
@@ -208,10 +209,10 @@ public class SudokuSolve {
 		for (int i = sRow; i < sRow + Y; i++)
 			for (int j = sCol; j < sCol + X; j++) {
 				int num = board[i][j];
-					if (ls[num])
-						return false;
+				if (ls[num])
+					return false;
 
-					ls[num] = board[i][j] != 0;
+				ls[num] = board[i][j] != 0;
 			}
 
 		return true;
