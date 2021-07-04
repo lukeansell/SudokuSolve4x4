@@ -41,6 +41,7 @@ public class SudokuSolve {
 		// StdOut.println();
 		solveBTAdv();
 		boardPrintNice();
+		StdOut.println("complete: " + complete());
 		// } else {
 		// StdDraw.enableDoubleBuffering();
 		// StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
@@ -127,12 +128,15 @@ public class SudokuSolve {
 
 	// changed to 4x4
 	public static boolean complete() {
+		return filled() && validBoard();
+	}
+
+	public static boolean filled() {
 		for (int i = 0; i < D; i++)
 			for (int j = 0; j < D; j++)
 				if (board[i][j] == 0)
 					return false;
-
-		return validBoard();
+		return true;
 	}
 
 	public static void solveVis() {
@@ -186,7 +190,7 @@ public class SudokuSolve {
 			if (validBoard())
 				solveBT();
 
-			if (complete())
+			if (filled())
 				return;
 
 			board[nRow][nCol] = 0;
@@ -194,20 +198,14 @@ public class SudokuSolve {
 	}
 
 	public static void solveBTAdv() {
-		if (complete())
-			return;
-
+		// if (complete())
+		// return;
 		int nRow = D;
 		int nCol = D;
 		int min = 17;
-		// find lowest num of values
 		int allVals[][][] = getPossibleValuesAll();
-		// int total = 0;
-		// int num = 0;
 		for (int i = 0; i < D; i++)
 			for (int j = 0; j < D; j++) {
-				// total += allVals[i][j].length;
-				// num += board[i][j] == 0 ? 1 : 0;
 				if (board[i][j] == 0 && allVals[i][j].length < min) {
 					nRow = i;
 					nCol = j;
@@ -216,20 +214,11 @@ public class SudokuSolve {
 				if (board[i][j] == 0 && allVals[i][j].length == 0)
 					return;
 			}
-		// StdOut.println(num + " " + total);
-		// if (num == 0) {
-			// StdOut.println("HERE");
-			// return;
-		// }
 		if (min == 17)
 			return;
 
-		// StdOut.println("row; " + nRow + " col: " + nCol);
-		// allVals[nRow][nCol].length);
 		int values[] = allVals[nRow][nCol];
 		for (int i = 0; i < values.length; i++) {
-			// if ((nRow == 0 && nCol == 2) || (nRow == 8 && nCol == 1))
-			// 	StdOut.println("row; " + nRow + " col: " + nCol + " trying: " + values[i]);
 			board[nRow][nCol] = values[i];
 			if (validBoard())
 				solveBTAdv();
