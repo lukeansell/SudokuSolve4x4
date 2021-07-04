@@ -3,12 +3,13 @@ import java.awt.Font;
 
 public class SudokuSolve {
 
+	private static Stopwatch sw = new Stopwatch();
 	private static final int X = 4;
 	private static final int Y = 4;
 	private static final int D = X * Y;
 	private static int[][] board = new int[D][D];
 	private static boolean[][] empty = new boolean[D][D];
-	private static String LINE;
+	private static String LINE = "";
 	// do vis stuff later
 	private static final int SIZE = 180;
 	private static int[][][] boardPos = new int[9][9][2];
@@ -22,19 +23,24 @@ public class SudokuSolve {
 		populateLINE();
 		populateBoard(filename);
 		boardPrintNice();
-		Stopwatch sw = new Stopwatch();
-		for (int i = 0; i < 10000; i++) {
-			validBlocks();
-		}
+		// Stopwatch sw = new Stopwatch();
+		getPossibleValuesAll();
+		// int[] values = getPossibleValues(0, 2);
+		// for (int i = 0; i < values.length; i++)
+		// StdOut.print(values[i] + " ");
+		// StdOut.println();
+		// for (int i = 0; i < 10000; i++) {
+		// validBlocks();
+		// }
 		// StdOut.println("validRowsCols(): " + validRowsCols());
 		// StdOut.println("validBlock(0, 0): " + validBlock(0, 0));
-		// solve();
+		// solveBT();
 		// boardPrintNice();
 		// if (textMode) {
 		// boardPrintNice();
 		// StdOut.println();
-		// solve();
-		// boardPrintNice();
+		solveBTAdv();
+		boardPrintNice();
 		// } else {
 		// StdDraw.enableDoubleBuffering();
 		// StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
@@ -52,10 +58,8 @@ public class SudokuSolve {
 	}
 
 	public static void populateLINE() {
-		LINE = "";
-		for (int i = 0; i < (D + Y - 1); i++) {
+		for (int i = 0; i < (D + Y - 1); i++)
 			LINE += "---";
-		}
 	}
 
 	public static void drawGrid() {
@@ -103,6 +107,7 @@ public class SudokuSolve {
 
 	public static void visBoard() {
 		for (int i = 0; i < 9; i++) {
+
 			for (int j = 0; j < 9; j++) {
 				StdDraw.setPenColor(StdDraw.WHITE);
 				StdDraw.filledSquare(boardPos[i][j][0], boardPos[i][j][1], SIZE / 18 - 4);
@@ -142,6 +147,7 @@ public class SudokuSolve {
 			}
 		}
 		if (nCol == 9) {
+			drawGrid();
 			return;
 		}
 		for (int i = 1; i < 10; i++) {
@@ -153,7 +159,6 @@ public class SudokuSolve {
 				solveVis();
 			}
 			if (complete()) {
-				drawGrid();
 				return;
 			}
 			board[nRow][nCol] = 0;
@@ -162,7 +167,7 @@ public class SudokuSolve {
 
 	// changed to 4x4
 	// TODO improve
-	public static void solve() {
+	public static void solveBT() {
 		int nRow = D;
 		int nCol = D;
 		for (int i = 0; i < D && nRow == D; i++)
@@ -170,7 +175,6 @@ public class SudokuSolve {
 				if (board[i][j] == 0) {
 					nRow = i;
 					nCol = j;
-					// StdOut.println((nRow * X + nCol) * 100 / (D * D));
 					break;
 				}
 
@@ -180,13 +184,63 @@ public class SudokuSolve {
 		for (int i = 1; i <= D; i++) {
 			board[nRow][nCol] = i;
 			if (validBoard())
-				solve();
+				solveBT();
 
 			if (complete())
 				return;
 
 			board[nRow][nCol] = 0;
 		}
+	}
+
+	public static void solveBTAdv() {
+		if (complete())
+			return;
+
+		int nRow = D;
+		int nCol = D;
+		int min = 17;
+		// find lowest num of values
+		int allVals[][][] = getPossibleValuesAll();
+		// int total = 0;
+		// int num = 0;
+		for (int i = 0; i < D; i++)
+			for (int j = 0; j < D; j++) {
+				// total += allVals[i][j].length;
+				// num += board[i][j] == 0 ? 1 : 0;
+				if (board[i][j] == 0 && allVals[i][j].length < min) {
+					nRow = i;
+					nCol = j;
+					min = allVals[i][j].length;
+				}
+				if (board[i][j] == 0 && allVals[i][j].length == 0)
+					return;
+			}
+		// StdOut.println(num + " " + total);
+		// if (num == 0) {
+			// StdOut.println("HERE");
+			// return;
+		// }
+		if (min == 17)
+			return;
+
+		// StdOut.println("row; " + nRow + " col: " + nCol);
+		// allVals[nRow][nCol].length);
+		int values[] = allVals[nRow][nCol];
+		for (int i = 0; i < values.length; i++) {
+			// if ((nRow == 0 && nCol == 2) || (nRow == 8 && nCol == 1))
+			// 	StdOut.println("row; " + nRow + " col: " + nCol + " trying: " + values[i]);
+			board[nRow][nCol] = values[i];
+			if (validBoard())
+				solveBTAdv();
+
+			if (complete())
+				return;
+
+			board[nRow][nCol] = 0;
+		}
+
+		// StdOut.println();
 	}
 
 	public static boolean validBoard() {
@@ -205,6 +259,8 @@ public class SudokuSolve {
 
 	// TODO improve
 	public static boolean validBlock(int sRow, int sCol) {
+		sRow = sRow / X * X;
+		sCol = sCol / Y * Y;
 		boolean ls[] = new boolean[D + 1];
 		for (int i = sRow; i < sRow + Y; i++)
 			for (int j = sCol; j < sCol + X; j++) {
@@ -240,6 +296,47 @@ public class SudokuSolve {
 		return true;
 	}
 
+	public static boolean validRowCol(int row, int col) {
+		boolean[] numsR = new boolean[D + 1];
+		boolean[] numsC = new boolean[D + 1];
+		for (int i = 0; i < D; i++) {
+			int numR = board[row][i];
+			if (numsR[numR])
+				return false;
+			numsR[numR] = numR != 0;
+
+			int numC = board[i][col];
+			if (numsC[numC])
+				return false;
+			numsC[numC] = numC != 0;
+		}
+
+		return true;
+	}
+
+	public static boolean validRow(int row) {
+		boolean[] nums = new boolean[D + 1];
+		for (int i = 0; i < D; i++) {
+			int num = board[row][i];
+			if (nums[num])
+				return false;
+			nums[num] = num != 0;
+		}
+
+		return true;
+	}
+
+	public static boolean validCol(int col) {
+		boolean[] nums = new boolean[D + 1];
+		for (int i = 0; i < D; i++) {
+			int num = board[i][col];
+			if (nums[num])
+				return false;
+			nums[num] = num != 0;
+		}
+		return true;
+	}
+
 	// changed to 4x4
 	public static void populateBoard(String filename) {
 		In in = new In(filename);
@@ -267,19 +364,65 @@ public class SudokuSolve {
 	public static void boardPrintNice() {
 		String str = "";
 		for (int i = 0; i < D; i++) {
-			if (i % X == 0) {
+			if (i % X == 0)
 				str += LINE + "\n";
-			}
+
 			for (int j = 0; j < D; j++) {
-				if (j % Y == 0) {
+				if (j % Y == 0)
 					str += "| ";
-				}
+
 				str += String.format("%3d", board[i][j]);
 			}
 			str += "|\n";
 		}
 		str += LINE + "\n";
 		StdOut.print(str);
+	}
+
+	public static int[][][] getPossibleValuesAll() {
+		int[][][] temp = new int[D][D][16];
+		for (int i = 0; i < board.length; i++)
+			for (int j = 0; j < board.length; j++)
+				temp[i][j] = getPossibleValues(i, j);
+
+		// for (int i = 0; i < board.length; i++)
+		// for (int j = 0; j < board.length; j++) {
+		// StdOut.println("row: " + i + " col: " + j + "\t" + temp[i][j].length);
+		// for (int k = 0; k < temp[i][j].length; k++)
+		// StdOut.print(temp[i][j][k] + " ");
+		// StdOut.println();
+		// }
+		return temp;
+	}
+
+	public static int[] getPossibleValues(int row, int col) {
+		if (board[row][col] != 0) {
+			int t[] = {};
+			return t;
+		}
+		boolean[] nums = new boolean[16];
+		for (int i = 1; i <= D; i++) {
+			board[row][col] = i;
+			nums[i - 1] = validRowCol(row, col) && validBlock(row, col);
+		}
+		board[row][col] = 0;
+
+		// for (int i = 0; i < nums.length; i++)
+		// if (nums[i])
+		// StdOut.println(i + 1 + ": " + nums[i]);
+
+		int len = 0;
+		for (int i = 0; i < nums.length; i++)
+			len += nums[i] ? 1 : 0;
+
+		int[] temp = new int[len];
+		int count = 0;
+		for (int i = 0; i < nums.length; i++)
+			if (nums[i]) {
+				temp[count] = i + 1;
+				count++;
+			}
+		return temp;
 	}
 
 }
