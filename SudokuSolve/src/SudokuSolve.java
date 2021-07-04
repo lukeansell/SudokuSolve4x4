@@ -1,9 +1,8 @@
-
-import java.awt.Font;
+import java.util.Arrays;
 
 public class SudokuSolve {
 
-	private static Stopwatch sw = new Stopwatch();
+	// private static Stopwatch sw = new Stopwatch();
 	private static final int X = 4;
 	private static final int Y = 4;
 	private static final int D = X * Y;
@@ -18,44 +17,17 @@ public class SudokuSolve {
 
 	public static void main(String[] args) {
 
-		final boolean textMode = true;
 		String filename = "sudoku2.txt";
 		populateLINE();
 		populateBoard(filename);
 		boardPrintNice();
-		// Stopwatch sw = new Stopwatch();
-		getPossibleValuesAll();
-		// int[] values = getPossibleValues(0, 2);
-		// for (int i = 0; i < values.length; i++)
-		// StdOut.print(values[i] + " ");
-		// StdOut.println();
-		// for (int i = 0; i < 10000; i++) {
-		// validBlocks();
-		// }
-		// StdOut.println("validRowsCols(): " + validRowsCols());
-		// StdOut.println("validBlock(0, 0): " + validBlock(0, 0));
-		// solveBT();
-		// boardPrintNice();
-		// if (textMode) {
-		// boardPrintNice();
-		// StdOut.println();
+		Stopwatch sw = new Stopwatch();
+		// for (int i = 0; i < 10; i++)
+			// getPossibleValuesAll();
 		solveBTAdv();
 		boardPrintNice();
-		StdOut.println("complete: " + complete());
-		// } else {
-		// StdDraw.enableDoubleBuffering();
-		// StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
-		// drawGrid();
-		// populateBoardPos();
-		// visBoard();
-		// boardPrintNice();
-		// StdOut.println("\n\n");
-		// solveVis();
-		// boardPrintNice();
-		// visBoard();
-		// }
-		// StdOut.println("Solved");
 		StdOut.println(sw.elapsedTime());
+		StdOut.println("complete: " + complete());
 	}
 
 	public static void populateLINE() {
@@ -128,6 +100,7 @@ public class SudokuSolve {
 
 	// changed to 4x4
 	public static boolean complete() {
+
 		return filled() && validBoard();
 	}
 
@@ -190,7 +163,7 @@ public class SudokuSolve {
 			if (validBoard())
 				solveBT();
 
-			if (filled())
+			if (complete())
 				return;
 
 			board[nRow][nCol] = 0;
@@ -198,8 +171,6 @@ public class SudokuSolve {
 	}
 
 	public static void solveBTAdv() {
-		// if (complete())
-		// return;
 		int nRow = D;
 		int nCol = D;
 		int min = 17;
@@ -210,14 +181,14 @@ public class SudokuSolve {
 					nRow = i;
 					nCol = j;
 					min = allVals[i][j].length;
-				}
-				if (board[i][j] == 0 && allVals[i][j].length == 0)
+				} else if (board[i][j] == 0 && allVals[i][j].length == 0)
 					return;
 			}
 		if (min == 17)
 			return;
 
 		int values[] = allVals[nRow][nCol];
+		// int len = values.length;
 		for (int i = 0; i < values.length; i++) {
 			board[nRow][nCol] = values[i];
 			if (validBoard())
@@ -226,10 +197,9 @@ public class SudokuSolve {
 			if (complete())
 				return;
 
-			board[nRow][nCol] = 0;
 		}
+		board[nRow][nCol] = 0;
 
-		// StdOut.println();
 	}
 
 	public static boolean validBoard() {
@@ -400,17 +370,27 @@ public class SudokuSolve {
 		// if (nums[i])
 		// StdOut.println(i + 1 + ": " + nums[i]);
 
-		int len = 0;
-		for (int i = 0; i < nums.length; i++)
-			len += nums[i] ? 1 : 0;
-
-		int[] temp = new int[len];
-		int count = 0;
-		for (int i = 0; i < nums.length; i++)
+		int[] l = new int[16];
+		int c = 0;
+		for (int i = 0; i < D; i++)
 			if (nums[i]) {
-				temp[count] = i + 1;
-				count++;
+				l[c] = i + 1;
+				c++;
 			}
+
+		int[] temp = Arrays.copyOf(l, c);
+
+		// int len = 0;
+		// for (int i = 0; i < nums.length; i++)
+		// len += nums[i] ? 1 : 0;
+
+		// int[] temp = new int[len];
+		// int count = 0;
+		// for (int i = 0; i < nums.length; i++)
+		// if (nums[i]) {
+		// temp[count] = i + 1;
+		// count++;
+		// }
 		return temp;
 	}
 
