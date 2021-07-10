@@ -178,24 +178,15 @@ public class SudokuSolve {
 		int min = 17;
 		int allVals[][][] = getPossibleValuesAll();
 		// boolean found =
-		for (int i = 0; i < D && nRow == D; i++)
+		for (int i = 0; i < D; i++)
 			for (int j = 0; j < D; j++) {
-				if (board[i][j] == 0) {
-					if (allVals[i][j].length == 0)
-						return;
-					if (allVals[i][j].length == minF) {
+				if (board[i][j] == 0)
+					if (allVals[i][j].length < min) {
 						nRow = i;
 						nCol = j;
-						break;
-					}
-				}
-
-				// if (board[i][j] == 0 && allVals[i][j].length < min) {
-				// nRow = i;
-				// nCol = j;
-				// min = allVals[i][j].length;
-				// } else if (board[i][j] == 0 && allVals[i][j].length == 0)
-				// return;
+						min = allVals[i][j].length;
+					} else if (allVals[i][j].length == 0)
+						return;
 			}
 		if (nRow == D)
 			return;
@@ -421,7 +412,7 @@ public class SudokuSolve {
 
 		for (int i = 0; i < board.length; i++)
 			for (int j = 0; j < board.length; j++) {
-				int vals[] = getPossibleValues(i, j);
+				int[] vals = getPossibleValues(i, j);
 				int num = vals.length;
 				if (board[i][j] == 0) {
 					if (num == 0)
