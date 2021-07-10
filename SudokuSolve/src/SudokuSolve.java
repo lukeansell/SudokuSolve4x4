@@ -9,6 +9,10 @@ public class SudokuSolve {
 	private static int[][] board = new int[D][D];
 	private static boolean[][] empty = new boolean[D][D];
 	private static String LINE = "";
+	private static int minF = 0;
+
+	private static boolean complete = false;
+	private static boolean filled = false;
 	// do vis stuff later
 	private static final int SIZE = 180;
 	private static int[][][] boardPos = new int[9][9][2];
@@ -23,8 +27,8 @@ public class SudokuSolve {
 		boardPrintNice();
 		Stopwatch sw = new Stopwatch();
 		// for (int i = 0; i < 10; i++)
-			// getPossibleValuesAll();
-		solveBTAdv();
+		// getPossibleValuesAll();
+		solveBTAdv2();
 		boardPrintNice();
 		StdOut.println(sw.elapsedTime());
 		StdOut.println("complete: " + complete());
@@ -100,15 +104,18 @@ public class SudokuSolve {
 
 	// changed to 4x4
 	public static boolean complete() {
-
-		return filled() && validBoard();
+		complete = (filled() && validBoard());
+		return complete;
 	}
 
 	public static boolean filled() {
+		if (filled)
+			return true;
 		for (int i = 0; i < D; i++)
 			for (int j = 0; j < D; j++)
 				if (board[i][j] == 0)
 					return false;
+		filled = true;
 		return true;
 	}
 
@@ -143,7 +150,6 @@ public class SudokuSolve {
 	}
 
 	// changed to 4x4
-	// TODO improve
 	public static void solveBT() {
 		int nRow = D;
 		int nCol = D;
@@ -175,31 +181,60 @@ public class SudokuSolve {
 		int nCol = D;
 		int min = 17;
 		int allVals[][][] = getPossibleValuesAll();
-		for (int i = 0; i < D; i++)
+		// boolean found =
+		for (int i = 0; i < D && nRow == D; i++)
 			for (int j = 0; j < D; j++) {
-				if (board[i][j] == 0 && allVals[i][j].length < min) {
-					nRow = i;
-					nCol = j;
-					min = allVals[i][j].length;
-				} else if (board[i][j] == 0 && allVals[i][j].length == 0)
-					return;
+				if (board[i][j] == 0) {
+					if (allVals[i][j].length == 0)
+						return;
+					if (allVals[i][j].length == minF) {
+						nRow = i;
+						nCol = j;
+						break;
+					}
+				}
+
+				// if (board[i][j] == 0 && allVals[i][j].length < min) {
+				// nRow = i;
+				// nCol = j;
+				// min = allVals[i][j].length;
+				// } else if (board[i][j] == 0 && allVals[i][j].length == 0)
+				// return;
 			}
-		if (min == 17)
+		if (nRow == D)
 			return;
 
 		int values[] = allVals[nRow][nCol];
 		// int len = values.length;
 		for (int i = 0; i < values.length; i++) {
 			board[nRow][nCol] = values[i];
-			if (validBoard())
-				solveBTAdv();
+			// if (validBoard())
+			solveBTAdv();
 
-			if (complete())
+			if (complete || complete())
 				return;
 
 		}
 		board[nRow][nCol] = 0;
 
+	}
+
+	public static void solveBTAdv2() {
+		if (filled())
+			return;
+		int[] cell = getMinCell();
+		if (cell.length == 1)
+			return;
+
+		int values[] = getPossibleValues(cell[0], cell[1]);
+		for (int i = 0; i < values.length; i++) {
+			board[cell[0]][cell[1]] = values[i];
+			solveBTAdv2();
+			if (filled())
+				return;
+
+		}
+		board[cell[0]][cell[1]] = 0;
 	}
 
 	public static boolean validBoard() {
@@ -216,7 +251,6 @@ public class SudokuSolve {
 		return true;
 	}
 
-	// TODO improve
 	public static boolean validBlock(int sRow, int sCol) {
 		sRow = sRow / X * X;
 		sCol = sCol / Y * Y;
@@ -339,6 +373,7 @@ public class SudokuSolve {
 	}
 
 	public static int[][][] getPossibleValuesAll() {
+		minF = 17;
 		int[][][] temp = new int[D][D][16];
 		for (int i = 0; i < board.length; i++)
 			for (int j = 0; j < board.length; j++)
@@ -349,6 +384,8 @@ public class SudokuSolve {
 		// StdOut.println("row: " + i + " col: " + j + "\t" + temp[i][j].length);
 		// for (int k = 0; k < temp[i][j].length; k++)
 		// StdOut.print(temp[i][j][k] + " ");
+		// if (temp[i][j].length == 1)
+		// StdOut.print("---------------------------");
 		// StdOut.println();
 		// }
 		return temp;
@@ -379,7 +416,8 @@ public class SudokuSolve {
 			}
 
 		int[] temp = Arrays.copyOf(l, c);
-
+		minF = Math.min(minF, c);
+		// StdOut.println("minF: " + minF);
 		// int len = 0;
 		// for (int i = 0; i < nums.length; i++)
 		// len += nums[i] ? 1 : 0;
@@ -391,6 +429,35 @@ public class SudokuSolve {
 		// temp[count] = i + 1;
 		// count++;
 		// }
+		return temp;
+	}
+
+	public static int[] getMinCell() {
+		int row = -1, col = -1;
+		int[] temp = { row, col };
+		int[] fail = new int[1];
+		int min = 17;
+
+		for (int i = 0; i < board.length; i++)
+			for (int j = 0; j < board.length; j++) {
+				int num = getPossibleValues(i, j).length;
+				if (board[i][j] == 0)
+					if (num == 0)
+						return fail;
+					else if (num < min) {
+						if (num == 1) {
+							temp[0] = i;
+							temp[1] = j;
+							return temp;
+						}
+						temp[0] = i;
+						temp[1] = j;
+						min = num;
+					}
+
+			}
+		// temp[0] = row;
+		// temp[1] = col;
 		return temp;
 	}
 
