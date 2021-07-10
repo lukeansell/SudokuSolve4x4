@@ -2,7 +2,7 @@ import java.util.Arrays;
 
 public class SudokuSolve {
 
-	// private static Stopwatch sw = new Stopwatch();
+	private static Stopwatch sw = new Stopwatch();
 	private static final int X = 4;
 	private static final int Y = 4;
 	private static final int D = X * Y;
@@ -25,9 +25,7 @@ public class SudokuSolve {
 		populateLINE();
 		populateBoard(filename);
 		boardPrintNice();
-		Stopwatch sw = new Stopwatch();
-		// for (int i = 0; i < 10; i++)
-		// getPossibleValuesAll();
+		// Stopwatch sw = new Stopwatch();
 		solveBTAdv2();
 		boardPrintNice();
 		StdOut.println(sw.elapsedTime());
@@ -74,30 +72,28 @@ public class SudokuSolve {
 	// change to 4x4
 	public static void populateBoardPos() {
 		int s = SIZE / 9;
-		for (int i = 0; i < 9; i++) {
+		for (int i = 0; i < 9; i++)
 			for (int j = 0; j < 9; j++) {
 				boardPos[i][j][1] = SIZE - (i + 1) * s + s / 2;
 				boardPos[i][j][0] = (j + 1) * s - s / 2;
 			}
-		}
+
 	}
 
 	public static void visBoard() {
-		for (int i = 0; i < 9; i++) {
-
+		for (int i = 0; i < 9; i++)
 			for (int j = 0; j < 9; j++) {
 				StdDraw.setPenColor(StdDraw.WHITE);
 				StdDraw.filledSquare(boardPos[i][j][0], boardPos[i][j][1], SIZE / 18 - 4);
 				if (board[i][j] != 0) {
-					if (empty[i][j]) {
+					if (empty[i][j])
 						StdDraw.setPenColor(StdDraw.GRAY);
-					} else {
+					else
 						StdDraw.setPenColor(StdDraw.BLACK);
-					}
 					StdDraw.text(boardPos[i][j][0], boardPos[i][j][1], "" + board[i][j]);
 				}
 			}
-		}
+
 		StdDraw.show();
 		StdDraw.pause(DISPLAYDELAY);
 	}
@@ -222,19 +218,21 @@ public class SudokuSolve {
 	public static void solveBTAdv2() {
 		if (filled())
 			return;
-		int[] cell = getMinCell();
+		int[][] cell = getMinCell();
 		if (cell.length == 1)
 			return;
 
-		int values[] = getPossibleValues(cell[0], cell[1]);
+		int values[] = cell[1];
 		for (int i = 0; i < values.length; i++) {
-			board[cell[0]][cell[1]] = values[i];
+
+			board[cell[0][0]][cell[0][1]] = values[i];
+
 			solveBTAdv2();
+
 			if (filled())
 				return;
-
 		}
-		board[cell[0]][cell[1]] = 0;
+		board[cell[0][0]][cell[0][1]] = 0;
 	}
 
 	public static boolean validBoard() {
@@ -330,7 +328,6 @@ public class SudokuSolve {
 		return true;
 	}
 
-	// changed to 4x4
 	public static void populateBoard(String filename) {
 		In in = new In(filename);
 		for (int i = 0; i < D; i++) {
@@ -341,7 +338,6 @@ public class SudokuSolve {
 		}
 	}
 
-	// changed to 4x4
 	public static void boardPrint() {
 		String str = "";
 		for (int i = 0; i < D; i++) {
@@ -353,7 +349,6 @@ public class SudokuSolve {
 		StdOut.println(str);
 	}
 
-	// changed to 4x4
 	public static void boardPrintNice() {
 		String str = "";
 		for (int i = 0; i < D; i++) {
@@ -415,49 +410,36 @@ public class SudokuSolve {
 				c++;
 			}
 
-		int[] temp = Arrays.copyOf(l, c);
-		minF = Math.min(minF, c);
-		// StdOut.println("minF: " + minF);
-		// int len = 0;
-		// for (int i = 0; i < nums.length; i++)
-		// len += nums[i] ? 1 : 0;
-
-		// int[] temp = new int[len];
-		// int count = 0;
-		// for (int i = 0; i < nums.length; i++)
-		// if (nums[i]) {
-		// temp[count] = i + 1;
-		// count++;
-		// }
-		return temp;
+		// int[] temp = Arrays.copyOf(l, c);
+		return Arrays.copyOf(l, c);
 	}
 
-	public static int[] getMinCell() {
-		int row = -1, col = -1;
-		int[] temp = { row, col };
-		int[] fail = new int[1];
+	public static int[][] getMinCell() {
+		int[][] temp = new int[2][2];
+		int[][] fail = new int[1][1];
 		int min = 17;
 
 		for (int i = 0; i < board.length; i++)
 			for (int j = 0; j < board.length; j++) {
-				int num = getPossibleValues(i, j).length;
-				if (board[i][j] == 0)
+				int vals[] = getPossibleValues(i, j);
+				int num = vals.length;
+				if (board[i][j] == 0) {
 					if (num == 0)
 						return fail;
-					else if (num < min) {
-						if (num == 1) {
-							temp[0] = i;
-							temp[1] = j;
-							return temp;
-						}
-						temp[0] = i;
-						temp[1] = j;
+					if (num == 1) {
+						temp[0][0] = i;
+						temp[0][1] = j;
+						temp[1] = vals;
+						return temp;
+					}
+					if (num < min) {
+						temp[0][0] = i;
+						temp[0][1] = j;
+						temp[1] = vals;
 						min = num;
 					}
-
+				}
 			}
-		// temp[0] = row;
-		// temp[1] = col;
 		return temp;
 	}
 
