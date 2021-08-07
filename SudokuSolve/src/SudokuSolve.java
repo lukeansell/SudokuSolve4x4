@@ -9,13 +9,13 @@ public class SudokuSolve {
 	private static int[][] board = new int[D][D];
 	private static boolean[][] empty = new boolean[D][D];
 	private static String LINE = "";
-	private static int minF = 0;
 
+	private static int cellsFilled = 0;
+	private static int cellsStart = 0;
 	private static boolean complete = false;
 	private static boolean filled = false;
-	// do vis stuff later
-	private static final int SIZE = 180;
-	private static int[][][] boardPos = new int[9][9][2];
+	private static final double SIZE = 180.0;
+	private static double[][][] boardPos = new double[D][D][2];
 	private static final int DISPLAYDELAY = 0;
 	private static final int GREENWAIT = 0;
 
@@ -25,9 +25,13 @@ public class SudokuSolve {
 		populateLINE();
 		populateBoard(filename);
 		boardPrintNice();
-		// Stopwatch sw = new Stopwatch();
-		solveBTAdv2();
+		// solveBTAdv2();
+		visInit();
+		populateBoardPos();
+		visBoard();
+		solveBTAdv2Vis();
 		boardPrintNice();
+
 		StdOut.println(sw.elapsedTime());
 		StdOut.println("complete: " + complete());
 	}
@@ -37,16 +41,23 @@ public class SudokuSolve {
 			LINE += "---";
 	}
 
+	public static void visInit() {
+		StdDraw.pause(50);
+		StdDraw.setCanvasSize(650, 650);
+		StdDraw.enableDoubleBuffering();
+		StdDraw.setScale(0, SIZE);
+		drawGrid();
+	}
+
 	public static void drawGrid() {
-		StdDraw.setXscale(0, SIZE);
-		StdDraw.setYscale(0, SIZE);
+
 		StdDraw.setPenColor(StdDraw.BLACK);
-		int s = SIZE / 9;
+		double s = SIZE * 1.0 / D;
 		StdDraw.setPenRadius(0.004);
 		StdDraw.line(0, 180, 180, 180);
-		for (int i = 0; i < 9; i++) {
+		for (int i = 0; i < D; i++) {
 			StdDraw.setPenRadius(0.004);
-			if (i % 3 == 0) {
+			if (i % X == 0) {
 				StdDraw.setPenRadius(0.008);
 			}
 			StdDraw.line(0, i * s, SIZE, i * s);
@@ -58,33 +69,31 @@ public class SudokuSolve {
 	public static void highlightSquare(int row, int col) {
 		drawGrid();
 		StdDraw.setPenColor(StdDraw.RED);
-		StdDraw.square(boardPos[row][col][0], boardPos[row][col][1], SIZE / 18.0);
+		StdDraw.square(boardPos[row][col][0], boardPos[row][col][1], SIZE / (D * 2.0));
 	}
 
 	public static void highlightSquareG(int row, int col) {
 		drawGrid();
 		StdDraw.setPenColor(StdDraw.GREEN);
-		StdDraw.square(boardPos[row][col][0], boardPos[row][col][1], SIZE / 18.0);
+		StdDraw.square(boardPos[row][col][0], boardPos[row][col][1], SIZE / (D * 2.0));
 		StdDraw.show();
 		StdDraw.pause(GREENWAIT);
 	}
 
-	// change to 4x4
 	public static void populateBoardPos() {
-		int s = SIZE / 9;
-		for (int i = 0; i < 9; i++)
-			for (int j = 0; j < 9; j++) {
+		double s = SIZE * 1.0 / D;
+		for (int i = 0; i < D; i++)
+			for (int j = 0; j < D; j++) {
 				boardPos[i][j][1] = SIZE - (i + 1) * s + s / 2;
 				boardPos[i][j][0] = (j + 1) * s - s / 2;
 			}
-
 	}
 
 	public static void visBoard() {
-		for (int i = 0; i < 9; i++)
-			for (int j = 0; j < 9; j++) {
+		for (int i = 0; i < D; i++)
+			for (int j = 0; j < D; j++) {
 				StdDraw.setPenColor(StdDraw.WHITE);
-				StdDraw.filledSquare(boardPos[i][j][0], boardPos[i][j][1], SIZE / 18 - 4);
+				StdDraw.filledSquare(boardPos[i][j][0], boardPos[i][j][1], SIZE / (D * 2.0) - 1);
 				if (board[i][j] != 0) {
 					if (empty[i][j])
 						StdDraw.setPenColor(StdDraw.GRAY);
@@ -98,7 +107,6 @@ public class SudokuSolve {
 		StdDraw.pause(DISPLAYDELAY);
 	}
 
-	// changed to 4x4
 	public static boolean complete() {
 		complete = (filled() && validBoard());
 		return complete;
@@ -145,7 +153,6 @@ public class SudokuSolve {
 		}
 	}
 
-	// changed to 4x4
 	public static void solveBT() {
 		int nRow = D;
 		int nCol = D;
@@ -177,7 +184,6 @@ public class SudokuSolve {
 		int nCol = D;
 		int min = 17;
 		int allVals[][][] = getPossibleValuesAll();
-		// boolean found =
 		for (int i = 0; i < D; i++)
 			for (int j = 0; j < D; j++) {
 				if (board[i][j] == 0)
@@ -192,10 +198,8 @@ public class SudokuSolve {
 			return;
 
 		int values[] = allVals[nRow][nCol];
-		// int len = values.length;
 		for (int i = 0; i < values.length; i++) {
 			board[nRow][nCol] = values[i];
-			// if (validBoard())
 			solveBTAdv();
 
 			if (complete || complete())
@@ -215,7 +219,6 @@ public class SudokuSolve {
 
 		int values[] = cell[1];
 		for (int i = 0; i < values.length; i++) {
-
 			board[cell[0][0]][cell[0][1]] = values[i];
 
 			solveBTAdv2();
@@ -226,11 +229,32 @@ public class SudokuSolve {
 		board[cell[0][0]][cell[0][1]] = 0;
 	}
 
+	public static void solveBTAdv2Vis() {
+		if (filled())
+			return;
+		int[][] cell = getMinCell();
+		if (cell.length == 1)
+			return;
+
+		int values[] = cell[1];
+		for (int i = 0; i < values.length; i++) {
+			board[cell[0][0]][cell[0][1]] = values[i];
+			visBoard();
+			cellsFilled++;
+			StdOut.printf("%f%%\n", 100.0 * cellsFilled / cellsStart);
+			solveBTAdv2Vis();
+
+			if (filled())
+				return;
+			cellsFilled--;
+		}
+		board[cell[0][0]][cell[0][1]] = 0;
+	}
+
 	public static boolean validBoard() {
 		return validRowsCols() && validBlocks();
 	}
 
-	// changed to 4x4
 	public static boolean validBlocks() {
 		for (int i = 0; i < Y; i++)
 			for (int j = 0; j < X; j++)
@@ -256,7 +280,6 @@ public class SudokuSolve {
 		return true;
 	}
 
-	// changed to 4x4
 	public static boolean validRowsCols() {
 		for (int i = 0; i < D; i++) {
 			boolean[] numsRow = new boolean[D + 1];
@@ -321,45 +344,45 @@ public class SudokuSolve {
 
 	public static void populateBoard(String filename) {
 		In in = new In(filename);
-		for (int i = 0; i < D; i++) {
+		for (int i = 0; i < D; i++)
 			for (int j = 0; j < D; j++) {
 				board[i][j] = in.readInt();
 				empty[i][j] = board[i][j] == 0;
+				if (empty[i][j])
+					cellsStart++;
 			}
-		}
 	}
 
 	public static void boardPrint() {
-		String str = "";
+		StringBuilder str = new StringBuilder();
 		for (int i = 0; i < D; i++) {
-			for (int j = 0; j < D; j++) {
-				str += String.format("%3d", board[i][j]);
-			}
-			str += "\n";
+			for (int j = 0; j < D; j++)
+				str.append(String.format("%3d", board[i][j]));
+			str.append("\n");
 		}
-		StdOut.println(str);
+		StdOut.println(str.toString());
 	}
 
 	public static void boardPrintNice() {
-		String str = "";
+		StringBuilder str = new StringBuilder();
 		for (int i = 0; i < D; i++) {
 			if (i % X == 0)
-				str += LINE + "\n";
+				str.append(LINE + "\n");
 
 			for (int j = 0; j < D; j++) {
 				if (j % Y == 0)
-					str += "| ";
+					str.append("| ");
 
-				str += String.format("%3d", board[i][j]);
+				str.append(String.format("%3d", board[i][j]));
 			}
-			str += "|\n";
+
+			str.append("|\n");
 		}
-		str += LINE + "\n";
-		StdOut.print(str);
+		str.append(LINE + "\n");
+		StdOut.print(str.toString());
 	}
 
 	public static int[][][] getPossibleValuesAll() {
-		minF = 17;
 		int[][][] temp = new int[D][D][16];
 		for (int i = 0; i < board.length; i++)
 			for (int j = 0; j < board.length; j++)
@@ -389,10 +412,6 @@ public class SudokuSolve {
 		}
 		board[row][col] = 0;
 
-		// for (int i = 0; i < nums.length; i++)
-		// if (nums[i])
-		// StdOut.println(i + 1 + ": " + nums[i]);
-
 		int[] l = new int[16];
 		int c = 0;
 		for (int i = 0; i < D; i++)
@@ -401,7 +420,6 @@ public class SudokuSolve {
 				c++;
 			}
 
-		// int[] temp = Arrays.copyOf(l, c);
 		return Arrays.copyOf(l, c);
 	}
 
@@ -411,10 +429,10 @@ public class SudokuSolve {
 		int min = 17;
 
 		for (int i = 0; i < board.length; i++)
-			for (int j = 0; j < board.length; j++) {
-				int[] vals = getPossibleValues(i, j);
-				int num = vals.length;
+			for (int j = 0; j < board.length; j++)
 				if (board[i][j] == 0) {
+					int[] vals = getPossibleValues(i, j);
+					int num = vals.length;
 					if (num == 0)
 						return fail;
 					if (num == 1) {
@@ -430,7 +448,6 @@ public class SudokuSolve {
 						min = num;
 					}
 				}
-			}
 		return temp;
 	}
 
