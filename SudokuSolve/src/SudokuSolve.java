@@ -7,13 +7,13 @@ public class SudokuSolve {
 	private static final int D = X * Y;
 	// private static int[][] board = new int[D][D];1
 	// private static boolean[][] empty = new boolean[D][D];
-	// private static String LINE = "";
+	private static String LINE = "";
 
 	// private static int cellsFilled = 0;
 	// private static int cellsStart = 0;
 	// private static boolean complete = false;
 	// private static boolean filled = false;
-	// private static final double SIZE = 180.0;
+	private static final double SIZE = 180.0;
 	// private static double[][][] boardPos = new double[D][D][2];
 	// private static final int DISPLAYDELAY = 0;
 	// private static final int GREENWAIT = 0;
