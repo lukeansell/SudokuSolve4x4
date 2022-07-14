@@ -1,7 +1,6 @@
 import java.util.Arrays;
 
-public class SudokuSolver4x4 {
-
+public class SudokuSolverNxN {
     private static final int X = 4;
     private static final int Y = 4;
     private static final int D = X * Y;
@@ -30,7 +29,7 @@ public class SudokuSolver4x4 {
 
     public int tries = 0;
 
-    public SudokuSolver4x4(String filename) {
+    public SudokuSolverNxN(String filename) {
         populateLINE();
         populateBoard(filename);
 
@@ -96,7 +95,7 @@ public class SudokuSolver4x4 {
         solve2();
     }
 
-    public void initOps() {
+    private void initOps() {
         for (int row = 0; row < D; row++)
             for (int col = 0; col < D; col++)
                 initOps(row, col);
@@ -166,10 +165,6 @@ public class SudokuSolver4x4 {
     private boolean checkAll(int row, int col, int num) {
         return checkRC(row, col, num) && checkHouse(row, col, num);
     }
-    // private boolean checkAll(int row, int col, int num) {
-    // return checkRow(row, num) && checkCol(col, num)
-    // && checkHouse(row, col, num);
-    // }
 
     private boolean checkRow(int row, int num) {
         for (int i = 0; i < D; i++)
@@ -244,8 +239,6 @@ public class SudokuSolver4x4 {
         }
     }
 
-    // public void checkOps
-
     private boolean hasOps() {
         for (int i = 0; i < X; i++)
             for (int j = 0; j < Y; j++)
@@ -270,51 +263,7 @@ public class SudokuSolver4x4 {
                 ops[i][col][num - 1] = hc && board[i][col] == 0 && checkRow(i, num);
             }
         }
-        // hr = checkHouse(row, 4, num);
-        // hc = checkHouse(4, col, num);
-
-        // for (int i = 4; i < 8; i++) {
-        // ops[row][i][num - 1] = hr && board[row][i] == 0 && checkRC(row, i, num);
-        // ops[i][col][num - 1] = hc && board[i][col] == 0 && checkAll(i, col, num);
-        // }
-        // hr = checkHouse(row, 8, num);
-        // hc = checkHouse(8, col, num);
-
-        // for (int i = 8; i < 12; i++) {
-        // ops[row][i][num - 1] = hr && board[row][i] == 0 && checkRC(row, i, num);
-        // ops[i][col][num - 1] = hc && board[i][col] == 0 && checkAll(i, col, num);
-        // }
-        // hr = checkHouse(row, 12, num);
-        // hc = checkHouse(12, col, num);
-
-        // for (int i = 12; i < 16; i++) {
-        // ops[row][i][num - 1] = hr && board[row][i] == 0 && checkRC(row, i, num);
-        // ops[i][col][num - 1] = hc && board[i][col] == 0 && checkAll(i, col, num);
-        // }
-        // tL3 += sw.elapsedTime() - lTime;
     }
-    // private void updateOpsAdd(int row, int col, int num) {
-    // lTime = sw.elapsedTime();
-    // initOps(row, col);
-    // initOpsHN(num, row, col);
-    // tL2 += sw.elapsedTime() - lTime;
-    // lTime = sw.elapsedTime();
-    // for (int i = 0; i < D; i++) {
-
-    // // ops[row][i][num - 1] = board[row][i] == 0 && checkCol(i, num) &&
-    // checkHouse(row, i, num);
-    // ops[row][i][num - 1] = board[row][i] == 0 && checkAll(row, i, num);
-    // ops[i][col][num - 1] = board[i][col] == 0 && checkAll(i, col, num);
-
-    // // initOps( row, i);
-    // // initOps( i, col);
-    // }
-    // tL3 += sw.elapsedTime() - lTime;
-    // }
-
-    // private void upRowAdd(int row, int num) {
-
-    // }
 
     private boolean complete2() {
         for (int i = 0; i < D; i++)
@@ -514,28 +463,5 @@ public class SudokuSolver4x4 {
 
         return true;
     }
-
-    // private boolean validRow(int row) {
-    // boolean[] nums = new boolean[D + 1];
-    // for (int i = 0; i < D; i++) {
-    // int num = board[row][i];
-    // if (nums[num])
-    // return false;
-    // nums[num] = num != 0;
-    // }
-
-    // return true;
-    // }
-
-    // private boolean validCol(int col) {
-    // boolean[] nums = new boolean[D + 1];
-    // for (int i = 0; i < D; i++) {
-    // int num = board[i][col];
-    // if (nums[num])
-    // return false;
-    // nums[num] = num != 0;
-    // }
-    // return true;
-    // }
 
 }

@@ -5,31 +5,33 @@ public class SudokuSolve {
 	private static final int X = 4;
 	private static final int Y = 4;
 	private static final int D = X * Y;
-	private static int[][] board = new int[D][D];
-	private static boolean[][] empty = new boolean[D][D];
-	private static String LINE = "";
+	// private static int[][] board = new int[D][D];1
+	// private static boolean[][] empty = new boolean[D][D];
+	// private static String LINE = "";
 
-	private static int cellsFilled = 0;
-	private static int cellsStart = 0;
-	private static boolean complete = false;
-	private static boolean filled = false;
-	private static final double SIZE = 180.0;
-	private static double[][][] boardPos = new double[D][D][2];
-	private static final int DISPLAYDELAY = 0;
-	private static final int GREENWAIT = 0;
+	// private static int cellsFilled = 0;
+	// private static int cellsStart = 0;
+	// private static boolean complete = false;
+	// private static boolean filled = false;
+	// private static final double SIZE = 180.0;
+	// private static double[][][] boardPos = new double[D][D][2];
+	// private static final int DISPLAYDELAY = 0;
+	// private static final int GREENWAIT = 0;
 
-	private static double tFill = 0.0;
-	private static double tMinCell = 0.0;
-	private static double lTime = 0.0;
+	// private static double tFill = 0.0;
+	// private static double tMinCell = 0.0;
+	// private static double lTime = 0.0;
 
 	public static void main(String[] args) {
 		SudokuSolver4x4 ss = new SudokuSolver4x4("sudoku4.txt");
 		ss.boardPrintNice();
 		ss.startSolve();
+		// for (int i = 0; i < 1000; i++)
+		// ss.initOps();
 		// ss.solve();
 		ss.boardPrintNice();
 		// System.out.println("tries: " + ss.tries + " (111708)");
-		System.out.println("valid board: " + ss.validBoard());
+		// System.out.println("valid board: " + ss.validBoard());
 		// String filename = "sudoku2.txt";
 		// populateLINE();
 		// populateBoard(filename);
@@ -81,46 +83,49 @@ public class SudokuSolve {
 		StdDraw.show();
 	}
 
-	public static void highlightSquare(int row, int col) {
-		drawGrid();
-		StdDraw.setPenColor(StdDraw.RED);
-		StdDraw.square(boardPos[row][col][0], boardPos[row][col][1], SIZE / (D * 2.0));
-	}
+	// public static void highlightSquare(int row, int col) {
+	// drawGrid();
+	// StdDraw.setPenColor(StdDraw.RED);
+	// StdDraw.square(boardPos[row][col][0], boardPos[row][col][1], SIZE / (D *
+	// 2.0));
+	// }
 
-	public static void highlightSquareG(int row, int col) {
-		drawGrid();
-		StdDraw.setPenColor(StdDraw.GREEN);
-		StdDraw.square(boardPos[row][col][0], boardPos[row][col][1], SIZE / (D * 2.0));
-		StdDraw.show();
-		StdDraw.pause(GREENWAIT);
-	}
+	// public static void highlightSquareG(int row, int col) {
+	// drawGrid();
+	// StdDraw.setPenColor(StdDraw.GREEN);
+	// StdDraw.square(boardPos[row][col][0], boardPos[row][col][1], SIZE / (D *
+	// 2.0));
+	// StdDraw.show();
+	// StdDraw.pause(GREENWAIT);
+	// }
 
-	public static void populateBoardPos() {
-		double s = SIZE * 1.0 / D;
-		for (int i = 0; i < D; i++)
-			for (int j = 0; j < D; j++) {
-				boardPos[i][j][1] = SIZE - (i + 1) * s + s / 2;
-				boardPos[i][j][0] = (j + 1) * s - s / 2;
-			}
-	}
+	// public static void populateBoardPos() {
+	// double s = SIZE * 1.0 / D;
+	// for (int i = 0; i < D; i++)
+	// for (int j = 0; j < D; j++) {
+	// boardPos[i][j][1] = SIZE - (i + 1) * s + s / 2;
+	// boardPos[i][j][0] = (j + 1) * s - s / 2;
+	// }
+	// }
 
-	public static void visBoard() {
-		for (int i = 0; i < D; i++)
-			for (int j = 0; j < D; j++) {
-				StdDraw.setPenColor(StdDraw.WHITE);
-				StdDraw.filledSquare(boardPos[i][j][0], boardPos[i][j][1], SIZE / (D * 2.0) - 1);
-				if (board[i][j] != 0) {
-					if (empty[i][j])
-						StdDraw.setPenColor(StdDraw.GRAY);
-					else
-						StdDraw.setPenColor(StdDraw.BLACK);
-					StdDraw.text(boardPos[i][j][0], boardPos[i][j][1], "" + board[i][j]);
-				}
-			}
+	// public static void visBoard() {
+	// for (int i = 0; i < D; i++)
+	// for (int j = 0; j < D; j++) {
+	// StdDraw.setPenColor(StdDraw.WHITE);
+	// StdDraw.filledSquare(boardPos[i][j][0], boardPos[i][j][1], SIZE / (D * 2.0) -
+	// 1);
+	// if (board[i][j] != 0) {
+	// if (empty[i][j])
+	// StdDraw.setPenColor(StdDraw.GRAY);
+	// else
+	// StdDraw.setPenColor(StdDraw.BLACK);
+	// StdDraw.text(boardPos[i][j][0], boardPos[i][j][1], "" + board[i][j]);
+	// }
+	// }
 
-		StdDraw.show();
-		StdDraw.pause(DISPLAYDELAY);
-	}
+	// StdDraw.show();
+	// StdDraw.pause(DISPLAYDELAY);
+	// }
 
 	// public static void solveVis() {
 	// int nRow = 9;
